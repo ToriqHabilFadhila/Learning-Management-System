@@ -1,0 +1,191 @@
+:root {
+    --brand-from: #7c3aed;
+    --brand-to: #db2777;
+    --brand-gradient: linear-gradient(135deg, #7c3aed, #db2777);
+}
+
+/* Loading Overlay */
+#loading-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+#loading-content {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification Container */
+#notification-container {
+    pointer-events: none;
+}
+
+#notification-container > * {
+    pointer-events: auto;
+}
+
+/* Notification Base Styles */
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    animation: slideInRight 0.4s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(400px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(400px) scale(0.95);
+    }
+}
+
+/* Error Notification */
+.notification-error {
+    background: linear-gradient(135deg, rgba(254, 242, 242, 0.95), rgba(254, 226, 226, 0.95));
+    border-left: 4px solid #ef4444;
+}
+
+.notification-error .icon-bg {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+}
+
+.notification-error .icon {
+    color: #dc2626;
+}
+
+/* Success Notification */
+.notification-success {
+    background: linear-gradient(135deg, rgba(240, 253, 244, 0.95), rgba(220, 252, 231, 0.95));
+    border-left: 4px solid #22c55e;
+}
+
+.notification-success .icon-bg {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+}
+
+.notification-success .icon {
+    color: #16a34a;
+}
+
+.notification-success .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    transition: width 0.1s linear;
+}
+
+/* Warning Notification */
+.notification-warning {
+    background: linear-gradient(135deg, rgba(254, 252, 232, 0.95), rgba(254, 243, 199, 0.95));
+    border-left: 4px solid #eab308;
+}
+
+.notification-warning .icon-bg {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.notification-warning .icon {
+    color: #ca8a04;
+}
+
+/* Info Notification */
+.notification-info {
+    background: linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(206, 250, 254, 0.95));
+    border-left: 4px solid #0ea5e9;
+}
+
+.notification-info .icon-bg {
+    background: linear-gradient(135deg, #e0f2fe, #cffafe);
+}
+
+.notification-info .icon {
+    color: #0369a1;
+}
+
+/* Icon Container */
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Close Button */
+.notification-close {
+    flex-shrink: 0;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.notification-close:hover {
+    color: #6b7280;
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.1);
+}
+
+/* Text Styles */
+.notification-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.4;
+}
+
+.notification-message p {
+    margin-bottom: 0.25rem;
+}
+
+.notification-message p:last-child {
+    margin-bottom: 0;
+}
