@@ -1,48 +1,65 @@
 FROM php:8.2-apache
 
-# Install system dependencies
+# 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
-    libjpeg-dev \
+    libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
+    libonig-dev \
     libpq-dev \
     zip \
     unzip \
     git \
-    curl
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Configure and install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd zip pdo pdo_pgsql pdo_mysql
+# 2. Install PHP extensions (GD harus SEBELUM composer install)
+RUN docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        zip \
+        pdo \
+        pdo_mysql \
+        pdo_pgsql \
+        mbstring \
+        opcache
 
-# Install Composer
+# 3. Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
+# 4. Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# 5. Copy composer files DULU (baru install dependencies)
+COPY composer.json composer.lock ./
+
+# 6. Composer install
+RUN composer install \
+    --optimize-autoloader \
+    --no-scripts \
+    --no-interaction \
+    --no-dev
+
+# 7. Copy semua file project
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-scripts --no-interaction
+# 8. Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
-
-# Configure Apache DocumentRoot
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Enable Apache mod_rewrite
+# 9. Apache config untuk Laravel
 RUN a2enmod rewrite
 
-# Expose port 80
+# 10. Configure Apache DocumentRoot
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
 EXPOSE 80
 
-# Start Apache
 CMD ["apache2-foreground"]
