@@ -9,7 +9,7 @@ class Notification extends Model
     protected $table = 'user_notifications';
     protected $primaryKey = 'id_notification';
     public $timestamps = false;
-    
+
     protected $fillable = [
         'id_user',
         'type',
