@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/ToriqHabilFadhila/Learning-Management-System/master/public/images/LMS%20Banner.png" width="400" alt="LMS Logo"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ToriqHabilFadhila/Learning-Management-System/master/public/images/LMS.png" width="400" alt="LMS Logo"></p>
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
@@ -246,9 +246,7 @@ Proyek ini dilisensikan di bawah [MIT License](LICENSE).
 
 **Tim Development**
 
-📧 Email: dev@lms-project.com  
-💬 Discord: [Join our community](https://discord.gg/lms)  
-📖 Documentation: [docs.lms-project.com](https://docs.lms-project.com)
+📧 Email: toriqqhabilfadhila21@gmail.com
 
 </div>
 
