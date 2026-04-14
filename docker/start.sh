@@ -29,6 +29,9 @@ FILESYSTEM_DISK="${FILESYSTEM_DISK:-local}"
 MAIL_MAILER="${MAIL_MAILER:-log}"
 
 VITE_ENABLED=false
+
+ASSET_URL="${ASSET_URL:-}"
+FORCE_HTTPS=true
 EOF
 
 # Generate APP_KEY jika belum ada
@@ -42,7 +45,13 @@ if [ -f "package.json" ]; then
     npm run build || echo "Vite build skipped"
 fi
 
-# Cache config
+# Clear all cache
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+# Cache config & routes
 php artisan config:cache
 php artisan route:cache
 
