@@ -20,31 +20,36 @@ RUN docker-php-ext-configure gd \
         --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_mysql mbstring opcache
 
-# STEP 3: Copy composer binary
+# STEP 3: Fix Apache MPM conflict
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true \
+    && a2enmod mpm_prefork \
+    && a2enmod rewrite
+
+# STEP 4: Copy composer binary
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# STEP 4: Set workdir
+# STEP 5: Set workdir
 WORKDIR /var/www/html
 
-# STEP 5: Copy composer files saja dulu
+# STEP 6: Copy composer files saja dulu
 COPY composer.json composer.lock ./
 
-# STEP 6: Composer install (SETELAH ext terinstall)
+# STEP 7: Composer install (SETELAH ext terinstall)
 RUN composer install \
     --optimize-autoloader \
     --no-scripts \
     --no-interaction \
     --no-dev
 
-# STEP 7: Copy semua source code
+# STEP 8: Copy semua source code
 COPY . .
 
-# STEP 8: Permissions
+# STEP 9: Apache virtual host config
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
+# STEP 10: Permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
-
-# STEP 9: Apache mod rewrite
-RUN a2enmod rewrite
 
 EXPOSE 80
 
