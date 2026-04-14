@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
+// Updated: Include all CSS files for production build
 export default defineConfig({
     plugins: [
         laravel({
