@@ -60,6 +60,6 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD ["/start.sh"]
