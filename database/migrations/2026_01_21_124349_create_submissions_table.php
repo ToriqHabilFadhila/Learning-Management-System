@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // PERBAIKAN: Hapus type lama agar tidak error Duplicate Object
+        DB::statement('DROP TYPE IF EXISTS submission_status');
+
         // ENUM status submission (PostgreSQL)
         DB::statement("CREATE TYPE submission_status AS ENUM ('submitted', 'graded', 'late')");
 

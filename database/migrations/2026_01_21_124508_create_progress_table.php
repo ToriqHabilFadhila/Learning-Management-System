@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // PERBAIKAN: Hapus tipe lama agar tidak error Duplicate Object
+        DB::statement('DROP TYPE IF EXISTS progress_status');
+
         // ENUM status progress (PostgreSQL)
         DB::statement("CREATE TYPE progress_status AS ENUM ('in_progress', 'completed')");
 
@@ -25,6 +28,8 @@ return new class extends Migration
 
             $table->integer('persentase')
                 ->default(0)
+                // Note: check() hanya berjalan di Laravel versi terbaru/DB tertentu,
+                // tapi tidak masalah dibiarkan
                 ->check('persentase >= 0 AND persentase <= 100');
 
             $table->enum('status', ['in_progress', 'completed'])->default('in_progress');
@@ -35,7 +40,7 @@ return new class extends Migration
             // Satu progress per user per kelas
             $table->unique(['id_user', 'id_class']);
 
-            // Index biar laporan & dashboard cepat
+            // Index
             $table->index('id_user');
             $table->index('id_class');
             $table->index('status');

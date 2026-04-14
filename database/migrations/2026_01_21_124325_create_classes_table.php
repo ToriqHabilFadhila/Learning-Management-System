@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // PERBAIKAN: Hapus type lama jika ada sisa dari migrasi sebelumnya
+        DB::statement('DROP TYPE IF EXISTS class_status');
+
         // ENUM status kelas (PostgreSQL)
         DB::statement("CREATE TYPE class_status AS ENUM ('active', 'archived')");
 
@@ -23,7 +26,7 @@ return new class extends Migration
             $table->enum('status', ['active', 'archived'])->default('active');
             $table->timestamps();
 
-            // Index biar query guru & token ngebut
+            // Index
             $table->index('created_by');
             $table->index('status');
         });

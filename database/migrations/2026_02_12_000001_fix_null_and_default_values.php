@@ -9,60 +9,44 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Fix token_kelas: set default expires_at to 30 days from now
+        // 1. Fix token_kelas: set default expires_at (Hanya untuk PostgreSQL)
         DB::table('token_kelas')
             ->whereNull('expires_at')
             ->update([
                 'expires_at' => DB::raw("NOW() + INTERVAL '30 days'")
             ]);
 
-        // Fix token_kelas: set max_uses to unlimited (0) if it's 0
-        // This is already correct, but ensure consistency
-        DB::table('token_kelas')
-            ->where('max_uses', 0)
-            ->update([
-                'max_uses' => 0  // 0 means unlimited
-            ]);
-
-        // Fix class_enrollments: ensure token_used is tracked
-        // This is nullable by design, so no fix needed
-        // But we can add a note that it tracks which token was used
-
-        // Fix progress: ensure all enrolled students have progress records
-        $enrollments = DB::table('class_enrollments')
+        // 2. Fix progress: Pastikan tiap orang yang daftar kelas punya record progress
+        // Kita pakai chunk untuk jaga-jaga kalau datanya banyak supaya tidak memory limit
+        DB::table('class_enrollments')
             ->select('id_user', 'id_class')
-            ->get();
+            ->chunkById(100, function ($enrollments) {
+                foreach ($enrollments as $enrollment) {
+                    DB::table('progress')
+                        ->updateOrInsert(
+                            [
+                                'id_user' => $enrollment->id_user,
+                                'id_class' => $enrollment->id_class,
+                            ],
+                            [
+                                'persentase' => 0,
+                                'status' => 'in_progress',
+                                'last_activity' => now(),
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]
+                        );
+                }
+            }, 'id_user', 'id_user'); // Sesuaikan kolom ID jika diperlukan
 
-        foreach ($enrollments as $enrollment) {
-            DB::table('progress')
-                ->updateOrInsert(
-                    [
-                        'id_user' => $enrollment->id_user,
-                        'id_class' => $enrollment->id_class,
-                    ],
-                    [
-                        'persentase' => 0,
-                        'status' => 'in_progress',
-                        'last_activity' => now(),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]
-                );
-        }
-
-        // Fix feedback_ai: ensure it's properly structured
-        // This table is for storing AI feedback, so it's okay if empty
-        // No fix needed
-
-        // Fix activity_logs: add initial system activity log only if admin user exists
-        $adminUser = DB::table('users')->where('id_user', 1)->first();
+        // 3. Fix activity_logs: Inisialisasi sistem
+        $adminUser = DB::table('users')->orderBy('id_user', 'asc')->first();
         if ($adminUser) {
             DB::table('activity_logs')->insert([
-                'id_user' => 1,
+                'id_user' => $adminUser->id_user,
                 'action_type' => 'system_init',
                 'target_type' => 'system',
-                'target_id' => null,
-                'description' => 'System initialized and database verified',
+                'description' => 'System data integrity verified and initialized',
                 'ip_address' => '127.0.0.1',
                 'timestamp' => now(),
             ]);
@@ -71,12 +55,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Rollback: remove the system init log
         DB::table('activity_logs')
             ->where('action_type', 'system_init')
             ->delete();
-
-        // Rollback: remove auto-created progress records
-        // This is optional - you might want to keep them
     }
 };

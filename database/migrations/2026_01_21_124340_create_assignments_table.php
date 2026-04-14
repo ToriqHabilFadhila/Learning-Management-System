@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // PERBAIKAN: Hapus type lama agar tidak error "Duplicate Object"
+        DB::statement('DROP TYPE IF EXISTS assignment_type');
+
         // ENUM tipe tugas (PostgreSQL)
         DB::statement("CREATE TYPE assignment_type AS ENUM ('pilihan_ganda', 'essay', 'praktik')");
 
@@ -33,7 +36,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Index biar laporan & dashboard sat-set
+            // Index
             $table->index('id_class');
             $table->index('created_by');
             $table->index('deadline');

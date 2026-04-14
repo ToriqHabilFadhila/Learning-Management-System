@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // PERBAIKAN: Hapus type lama jika ada sisa dari migrasi sebelumnya
+        DB::statement('DROP TYPE IF EXISTS enrollment_status');
+
         // ENUM status enrollment (PostgreSQL)
         DB::statement("CREATE TYPE enrollment_status AS ENUM ('active', 'completed', 'dropped')");
 

@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // PERBAIKAN: Hapus tipe lama agar tidak error Duplicate Object
+        DB::statement('DROP TYPE IF EXISTS notification_type');
+
         // ENUM tipe notifikasi (PostgreSQL)
         DB::statement("
             CREATE TYPE notification_type AS ENUM (
@@ -43,7 +46,7 @@ return new class extends Migration
 
             $table->timestamp('created_at')->useCurrent();
 
-            // Index biar notif cepat kebaca
+            // Index
             $table->index('id_user');
             $table->index('is_read');
             $table->index('type');
