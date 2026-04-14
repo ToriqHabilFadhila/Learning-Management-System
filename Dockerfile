@@ -18,28 +18,36 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions (including pdo_pgsql for PostgreSQL)
+# Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_pgsql mbstring opcache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set workdir
 WORKDIR /var/www/html
 
-# Copy composer files
+# Copy composer files dulu
 COPY composer.json composer.lock ./
 
-# Composer install
 RUN composer install \
     --optimize-autoloader \
     --no-scripts \
     --no-interaction \
     --no-dev
 
-# Copy source code
+# Copy semua source
 COPY . .
+
+# ✅ TAMBAHAN: Build Vite assets saat build (bukan saat runtime)
+RUN npm install && npm run build
+
+# ✅ TAMBAHAN: Buat storage directories yang dibutuhkan Laravel
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/logs \
+    bootstrap/cache
 
 # Nginx config
 COPY docker/nginx.conf /etc/nginx/sites-available/default
@@ -52,6 +60,6 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["/start.sh"]
