@@ -1,9 +1,7 @@
-node_modules
-npm-debug.log
-.git
-.gitignore
-README.md
+vendor/
+node_modules/
 .env
+.git
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
