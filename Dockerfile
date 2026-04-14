@@ -27,39 +27,35 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files dulu
+# Copy composer files
 COPY composer.json composer.lock ./
 
-RUN composer install \
-    --optimize-autoloader \
-    --no-scripts \
-    --no-interaction \
-    --no-dev
+# Install dependencies tanpa dev
+RUN composer install --optimize-autoloader --no-scripts --no-interaction --no-dev
 
-# Copy semua source
+# Copy semua source code
 COPY . .
 
-# ✅ TAMBAHAN: Build Vite assets saat build (bukan saat runtime)
+# ✅ Build Vite assets
 RUN npm install && npm run build
 
-# ✅ TAMBAHAN: Buat storage directories yang dibutuhkan Laravel
+# ✅ Setup direktori & Permissions
 RUN mkdir -p storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
     storage/logs \
-    bootstrap/cache
-
-# Nginx config
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-
-# Permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
+    bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache
+
+# ✅ Perbaikan Nginx: Pastikan file config benar-benar aktif
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Start script
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-EXPOSE 8000
+EXPOSE 80
 
 CMD ["/start.sh"]
