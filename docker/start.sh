@@ -13,11 +13,11 @@ APP_TIMEZONE="${APP_TIMEZONE:-UTC}"
 LOG_CHANNEL=stderr
 LOG_LEVEL="${LOG_LEVEL:-error}"
 
-DB_CONNECTION="${DB_CONNECTION:-mysql}"
+DB_CONNECTION="${DB_CONNECTION:-pgsql}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
-DB_PORT="${DB_PORT:-3306}"
+DB_PORT="${DB_PORT:-5432}"
 DB_DATABASE="${DB_DATABASE:-laravel}"
-DB_USERNAME="${DB_USERNAME:-root}"
+DB_USERNAME="${DB_USERNAME:-postgres}"
 DB_PASSWORD="${DB_PASSWORD:-}"
 
 CACHE_DRIVER="${CACHE_DRIVER:-file}"
@@ -27,11 +27,19 @@ QUEUE_CONNECTION="${QUEUE_CONNECTION:-sync}"
 FILESYSTEM_DISK="${FILESYSTEM_DISK:-local}"
 
 MAIL_MAILER="${MAIL_MAILER:-log}"
+
+VITE_ENABLED=false
 EOF
 
 # Generate APP_KEY jika belum ada
 if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
+fi
+
+# Build Vite assets (skip jika gagal)
+if [ -f "package.json" ]; then
+    npm install || echo "NPM install skipped"
+    npm run build || echo "Vite build skipped"
 fi
 
 # Cache config
