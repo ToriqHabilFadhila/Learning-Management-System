@@ -1,31 +1,71 @@
 #!/bin/bash
 set -e
 
-# Copy .env.production to .env
-cp /var/www/html/.env.production /var/www/html/.env
+echo "=== Generating .env from environment ==="
 
-# Generate APP_KEY
+cat > /var/www/html/.env << EOF
+APP_NAME="${APP_NAME}"
+APP_ENV="${APP_ENV:-production}"
+APP_KEY="${APP_KEY}"
+APP_DEBUG="${APP_DEBUG:-false}"
+APP_TIMEZONE="${APP_TIMEZONE:-Asia/Jakarta}"
+APP_URL="${APP_URL}"
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_MAINTENANCE_DRIVER=file
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stderr
+LOG_LEVEL=error
+
+DB_CONNECTION=pgsql
+DB_HOST="${DB_HOST}"
+DB_PORT="${DB_PORT:-5432}"
+DB_DATABASE="${DB_DATABASE}"
+DB_USERNAME="${DB_USERNAME}"
+DB_PASSWORD="${DB_PASSWORD}"
+
+GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}"
+GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}"
+GOOGLE_REDIRECT="${GOOGLE_REDIRECT}"
+
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+SESSION_PATH=/
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+CACHE_STORE=file
+
+MAIL_MAILER=log
+
+VITE_APP_NAME="${APP_NAME}"
+
+HUGGINGFACE_API_KEY="${HUGGINGFACE_API_KEY}"
+
+FIREBASE_CREDENTIALS=storage/app/firebase/service-account.json
+FIREBASE_API_KEY="${FIREBASE_API_KEY}"
+FIREBASE_AUTH_DOMAIN="${FIREBASE_AUTH_DOMAIN}"
+FIREBASE_PROJECT_ID="${FIREBASE_PROJECT_ID}"
+FIREBASE_STORAGE_BUCKET="${FIREBASE_STORAGE_BUCKET}"
+FIREBASE_MESSAGING_SENDER_ID="${FIREBASE_MESSAGING_SENDER_ID}"
+FIREBASE_APP_ID="${FIREBASE_APP_ID}"
+FIREBASE_VAPID_KEY="${FIREBASE_VAPID_KEY}"
+
+ASSET_URL="${APP_URL}"
+FORCE_HTTPS=true
+EOF
+
+echo "✅ .env generated"
+
 php artisan key:generate --force
-
-# Build Vite assets
-if [ -f "package.json" ]; then
-    npm install || echo "NPM install skipped"
-    npm run build || echo "Vite build skipped"
-fi
-
-# Clear cache
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
-
-# Cache config & routes
 php artisan config:cache
 php artisan route:cache
+php artisan view:clear
+php artisan migrate --force && echo "✅ Migrated" || echo "⚠️ Migration skipped"
+php artisan storage:link 2>/dev/null || true
 
-# Migrate
-php artisan migrate --force || echo "Migration skipped"
-
-# Start services
 php-fpm -D
-nginx -g "daemon off;"
+exec nginx -g "daemon off;"
