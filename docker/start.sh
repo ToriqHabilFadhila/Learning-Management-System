@@ -35,7 +35,7 @@ echo "✅ .env generated"
 php artisan config:cache
 php artisan route:cache
 php artisan view:clear
-php artisan migrate --force && echo "✅ Migrated" || echo "⚠️ Migration skipped"
+php artisan migrate:refresh --force --seed && echo "✅ Database Reset & Seeded" || echo "⚠️ Migration failed"
 php artisan storage:link 2>/dev/null || true
 
 php-fpm -D
